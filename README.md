@@ -19,10 +19,10 @@ project running in Docker on a local machine.
 
 ## Team
 
-| Name | Role |
-|---|---|
-| **Aakash Jawle** ([@iAakash1](https://github.com/iAakash1), aakashjawle101@gmail.com) | Developer |
-| **Kamaaksha Kharul** | Developer |
+| Name |
+|---|
+| **Aakash Jawle** ([@iAakash1](https://github.com/iAakash1), aakashjawle101@gmail.com) |
+| **Kamaaksha Kharul** (kharulkamaaksha@gmail.com) |
 
 B.Tech. Computer Engineering, Final Year — Pimpri Chinchwad College of Engineering
 Course: **Distributed Systems** (BCE27PC01) — Mini Project
