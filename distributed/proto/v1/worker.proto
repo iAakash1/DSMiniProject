@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package omnisignal.distributed.v1;
+
+option go_package = "omnisignal/distributed/v1";
+
+service WorkerCapability {
+  rpc ExecuteCapability(CapabilityRequest) returns (CapabilityResponse);
+}
+
+message CapabilityRequest {
+  string request_id = 1;
+  string run_id = 2;
+  string ticker = 3;
+  string capability = 4;
+  int64 leader_epoch = 5;
+  int64 lamport_timestamp = 6;
+  string coordinator_id = 7;
+  double timeout_seconds = 8;
+}
+
+message EvidenceRecord {
+  string vendor = 1;
+  string capability = 2;
+  string status = 3;
+  double latency_ms = 4;
+  string observed_at = 5;
+  string data_json = 6;
+  string error = 7;
+}
+
+message CapabilityResponse {
+  string request_id = 1;
+  string run_id = 2;
+  string worker_id = 3;
+  string worker_group = 4;
+  string capability = 5;
+  string status = 6;
+  string started_at = 7;
+  string completed_at = 8;
+  double latency_ms = 9;
+  repeated EvidenceRecord evidence = 10;
+  string error_json = 11;
+  int64 lamport_timestamp = 12;
+}

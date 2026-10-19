@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-market
+  namespace: minialaddin-distributed
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      com.minialaddin.distributed/role: market
+  template:
+    metadata:
+      labels:
+        com.minialaddin.distributed/role: market
+    spec:
+      containers:
+        - name: worker
+          image: minialaddin/distributed-service:latest
+          env:
+            - name: DISTRIBUTED_SERVICE_KIND
+              value: worker-market
+            - name: WORKER_GROUP
+              value: market
+            - name: PORT
+              value: "8000"
+            - name: WORKER_PORT
+              value: "8000"
+            - name: GRPC_PORT
+              value: "9000"
+            - name: COORDINATOR_BASE_URLS
+              value: http://coordinator-0.coordinator-headless:8000,http://coordinator-1.coordinator-headless:8000,http://coordinator-2.coordinator-headless:8000
+            - name: DISTRIBUTED_TEST_ADAPTERS
+              value: "true"
+          ports:
+            - containerPort: 8000
+            - containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-fundamentals
+  namespace: minialaddin-distributed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      com.minialaddin.distributed/role: fundamentals
+  template:
+    metadata:
+      labels:
+        com.minialaddin.distributed/role: fundamentals
+    spec:
+      containers:
+        - name: worker
+          image: minialaddin/distributed-service:latest
+          env:
+            - name: DISTRIBUTED_SERVICE_KIND
+              value: worker-fundamentals
+            - name: WORKER_GROUP
+              value: fundamentals
+            - name: PORT
+              value: "8000"
+            - name: WORKER_PORT
+              value: "8000"
+            - name: GRPC_PORT
+              value: "9000"
+            - name: COORDINATOR_BASE_URLS
+              value: http://coordinator-0.coordinator-headless:8000,http://coordinator-1.coordinator-headless:8000,http://coordinator-2.coordinator-headless:8000
+            - name: DISTRIBUTED_TEST_ADAPTERS
+              value: "true"
+          ports:
+            - containerPort: 8000
+            - containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-news-macro
+  namespace: minialaddin-distributed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      com.minialaddin.distributed/role: news_macro
+  template:
+    metadata:
+      labels:
+        com.minialaddin.distributed/role: news_macro
+    spec:
+      containers:
+        - name: worker
+          image: minialaddin/distributed-service:latest
+          env:
+            - name: DISTRIBUTED_SERVICE_KIND
+              value: worker-news-macro
+            - name: WORKER_GROUP
+              value: news_macro
+            - name: PORT
+              value: "8000"
+            - name: WORKER_PORT
+              value: "8000"
+            - name: GRPC_PORT
+              value: "9000"
+            - name: COORDINATOR_BASE_URLS
+              value: http://coordinator-0.coordinator-headless:8000,http://coordinator-1.coordinator-headless:8000,http://coordinator-2.coordinator-headless:8000
+            - name: DISTRIBUTED_TEST_ADAPTERS
+              value: "true"
+          ports:
+            - containerPort: 8000
+            - containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000

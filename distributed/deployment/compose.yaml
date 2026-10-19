@@ -1,0 +1,179 @@
+name: minialaddin
+
+services:
+  postgres-distributed:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: omnisignal
+      POSTGRES_PASSWORD: omnisignal
+      POSTGRES_DB: omnisignal_distributed
+    ports:
+      - "5532:5432"
+    volumes:
+      - distributed-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omnisignal -d omnisignal_distributed"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  coordinator-1:
+    build:
+      context: ../..
+      dockerfile: distributed/deployment/dockerfiles/service.Dockerfile
+    environment:
+      DISTRIBUTED_SERVICE_KIND: coordinator
+      COORDINATOR_ID: coordinator-01
+      COORDINATOR_HOST: coordinator-1
+      COORDINATOR_PORT: "8000"
+      COORDINATOR_PEERS: http://coordinator-2:8000,http://coordinator-3:8000
+      DISTRIBUTED_DATABASE_URL: postgresql://omnisignal:omnisignal@postgres-distributed:5432/omnisignal_distributed
+      PORT: "8000"
+    labels:
+      com.minialaddin.distributed.managed: "true"
+      com.minialaddin.distributed.role: coordinator
+      com.minialaddin.distributed.id: coordinator-01
+      com.minialaddin.distributed.baseport: "7001"
+    depends_on:
+      postgres-distributed:
+        condition: service_healthy
+    ports:
+      - "7001:8000"
+
+  coordinator-2:
+    build:
+      context: ../..
+      dockerfile: distributed/deployment/dockerfiles/service.Dockerfile
+    environment:
+      DISTRIBUTED_SERVICE_KIND: coordinator
+      COORDINATOR_ID: coordinator-02
+      COORDINATOR_HOST: coordinator-2
+      COORDINATOR_PORT: "8000"
+      COORDINATOR_PEERS: http://coordinator-1:8000,http://coordinator-3:8000
+      DISTRIBUTED_DATABASE_URL: postgresql://omnisignal:omnisignal@postgres-distributed:5432/omnisignal_distributed
+      PORT: "8000"
+    labels:
+      com.minialaddin.distributed.managed: "true"
+      com.minialaddin.distributed.role: coordinator
+      com.minialaddin.distributed.id: coordinator-02
+      com.minialaddin.distributed.baseport: "7001"
+    depends_on:
+      postgres-distributed:
+        condition: service_healthy
+    ports:
+      - "7002:8000"
+
+  coordinator-3:
+    build:
+      context: ../..
+      dockerfile: distributed/deployment/dockerfiles/service.Dockerfile
+    environment:
+      DISTRIBUTED_SERVICE_KIND: coordinator
+      COORDINATOR_ID: coordinator-03
+      COORDINATOR_HOST: coordinator-3
+      COORDINATOR_PORT: "8000"
+      COORDINATOR_PEERS: http://coordinator-1:8000,http://coordinator-2:8000
+      DISTRIBUTED_DATABASE_URL: postgresql://omnisignal:omnisignal@postgres-distributed:5432/omnisignal_distributed
+      PORT: "8000"
+    labels:
+      com.minialaddin.distributed.managed: "true"
+      com.minialaddin.distributed.role: coordinator
+      com.minialaddin.distributed.id: coordinator-03
+      com.minialaddin.distributed.baseport: "7001"
+    depends_on:
+      postgres-distributed:
+        condition: service_healthy
+    ports:
+      - "7003:8000"
+
+  worker-market:
+    build:
+      context: ../..
+      dockerfile: distributed/deployment/dockerfiles/service.Dockerfile
+    environment:
+      DISTRIBUTED_SERVICE_KIND: worker-market
+      WORKER_GROUP: market
+      WORKER_ID: worker-market-01
+      WORKER_PORT: "8000"
+      GRPC_PORT: "9000"
+      PORT: "8000"
+      COORDINATOR_BASE_URLS: http://coordinator-1:8000,http://coordinator-2:8000,http://coordinator-3:8000
+      DISTRIBUTED_TEST_ADAPTERS: ${DISTRIBUTED_TEST_ADAPTERS:-true}
+    depends_on:
+      - coordinator-1
+      - coordinator-2
+      - coordinator-3
+
+  worker-fundamentals:
+    build:
+      context: ../..
+      dockerfile: distributed/deployment/dockerfiles/service.Dockerfile
+    environment:
+      DISTRIBUTED_SERVICE_KIND: worker-fundamentals
+      WORKER_GROUP: fundamentals
+      WORKER_ID: worker-fundamentals-01
+      WORKER_PORT: "8000"
+      GRPC_PORT: "9000"
+      PORT: "8000"
+      COORDINATOR_BASE_URLS: http://coordinator-1:8000,http://coordinator-2:8000,http://coordinator-3:8000
+      DISTRIBUTED_TEST_ADAPTERS: ${DISTRIBUTED_TEST_ADAPTERS:-true}
+    depends_on:
+      - coordinator-1
+      - coordinator-2
+      - coordinator-3
+
+  worker-news-macro:
+    build:
+      context: ../..
+      dockerfile: distributed/deployment/dockerfiles/service.Dockerfile
+    environment:
+      DISTRIBUTED_SERVICE_KIND: worker-news-macro
+      WORKER_GROUP: news_macro
+      WORKER_ID: worker-news-macro-01
+      WORKER_PORT: "8000"
+      GRPC_PORT: "9000"
+      PORT: "8000"
+      COORDINATOR_BASE_URLS: http://coordinator-1:8000,http://coordinator-2:8000,http://coordinator-3:8000
+      DISTRIBUTED_TEST_ADAPTERS: ${DISTRIBUTED_TEST_ADAPTERS:-true}
+    depends_on:
+      - coordinator-1
+      - coordinator-2
+      - coordinator-3
+
+  control-api:
+    build:
+      context: ../..
+      dockerfile: distributed/deployment/dockerfiles/service.Dockerfile
+    environment:
+      DISTRIBUTED_SERVICE_KIND: control-api
+      DISTRIBUTED_DOCKER_ADAPTER: "true"
+      DISTRIBUTED_COMPOSE_PROJECT: minialaddin
+      DISTRIBUTED_DATABASE_URL: postgresql://omnisignal:omnisignal@postgres-distributed:5432/omnisignal_distributed
+      CONTROL_API_OPERATOR_TOKEN: change-me-operator-token
+      CONTROL_API_ALLOWED_ORIGINS: http://localhost:3100
+      PORT: "7900"
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      postgres-distributed:
+        condition: service_healthy
+    ports:
+      - "7900:7900"
+
+  control-plane:
+    build:
+      context: ../../control-plane
+      args:
+        NEXT_PUBLIC_CONTROL_API_URL: ${NEXT_PUBLIC_CONTROL_API_URL:-http://localhost:7900}
+    environment:
+      NEXT_PUBLIC_CONTROL_API_URL: ${NEXT_PUBLIC_CONTROL_API_URL:-http://localhost:7900}
+      CONTROL_API_INTERNAL_URL: http://control-api:7900
+      CONTROL_API_OPERATOR_TOKEN: change-me-operator-token
+    depends_on:
+      - control-api
+    ports:
+      - "3100:3100"
+
+volumes:
+  distributed-postgres-data:

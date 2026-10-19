@@ -1,0 +1,32 @@
+# Environment / secrets — never commit these
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv*/
+venv/
+*.pyc
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Claude / AI tooling local config — not part of the project
+.claude/
+
+# Docker / local data
+*.pid

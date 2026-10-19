@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: control-api
+  namespace: minialaddin-distributed
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: control-api-operator
+  namespace: minialaddin-distributed
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets", "statefulsets/scale"]
+    verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: control-api-operator
+  namespace: minialaddin-distributed
+subjects:
+  - kind: ServiceAccount
+    name: control-api
+    namespace: minialaddin-distributed
+roleRef:
+  kind: Role
+  name: control-api-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: control-api
+  namespace: minialaddin-distributed
+spec:
+  selector:
+    app: control-api
+  ports:
+    - port: 7900
+      targetPort: 7900
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: control-api
+  namespace: minialaddin-distributed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: control-api
+  template:
+    metadata:
+      labels:
+        app: control-api
+    spec:
+      serviceAccountName: control-api
+      containers:
+        - name: control-api
+          image: minialaddin/distributed-service:latest
+          env:
+            - name: DISTRIBUTED_SERVICE_KIND
+              value: control-api
+            - name: DISTRIBUTED_KUBERNETES_ADAPTER
+              value: "true"
+            - name: DISTRIBUTED_KUBERNETES_NAMESPACE
+              value: minialaddin-distributed
+            - name: PORT
+              value: "7900"
+            - name: DISTRIBUTED_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-secrets
+                  key: DISTRIBUTED_DATABASE_URL
+            - name: CONTROL_API_OPERATOR_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-secrets
+                  key: CONTROL_API_OPERATOR_TOKEN
+            - name: CONTROL_API_ALLOWED_ORIGINS
+              value: http://localhost:3100
+          ports:
+            - containerPort: 7900
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 7900
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 7900
