@@ -34,12 +34,31 @@ a:hover {
   flex-shrink: 0;
 }
 
+.rail-brand-row {
+  display: flex;
+  align-items: center;
+  gap: var(--d-2);
+  margin-bottom: var(--d-5);
+}
+
+.rail-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--r-lg);
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+}
+
 .rail-brand {
   font-size: var(--t-body-lg);
   font-weight: 600;
   letter-spacing: var(--tracking-display);
   color: var(--ink);
-  margin-bottom: 2px;
+  line-height: 1.2;
 }
 
 .rail-brand-sub {
@@ -47,16 +66,24 @@ a:hover {
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
   color: var(--ink-faint);
-  margin-bottom: var(--d-5);
+  line-height: 1.2;
 }
 
 .rail-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--d-2);
   padding: var(--d-2) var(--d-2);
   border-radius: var(--r-md);
   color: var(--ink-muted);
   font-size: var(--t-body);
-  margin-bottom: var(--d-1);
+  margin-bottom: 2px;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.rail-icon {
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .rail-link:hover {
@@ -67,6 +94,11 @@ a:hover {
 .rail-link.active {
   background: var(--accent-wash);
   color: var(--accent-strong);
+  font-weight: 500;
+}
+
+.rail-link.active .rail-icon {
+  opacity: 1;
 }
 
 .main {
@@ -126,7 +158,13 @@ a:hover {
   border-radius: var(--r-lg);
   padding: var(--d-4);
   margin-bottom: var(--d-4);
-  box-shadow: 0 1px 2px rgb(15 20 30 / 0.04);
+  box-shadow: 0 1px 2px rgb(15 20 30 / 0.04), 0 1px 10px -4px rgb(15 20 30 / 0.06);
+  transition: box-shadow var(--t-med) var(--ease), border-color var(--t-med) var(--ease);
+}
+
+.card:hover {
+  border-color: var(--rule-strong);
+  box-shadow: 0 2px 4px rgb(15 20 30 / 0.05), 0 4px 16px -4px rgb(15 20 30 / 0.09);
 }
 
 .card-title {

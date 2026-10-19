@@ -1,4 +1,11 @@
-# OrchestraNet — Distributed Systems Mini Project
+# OmniSignal — Distributed Systems Mini Project
+
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![gRPC](https://img.shields.io/badge/gRPC-4285F4?logo=googlecloud&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 
 A fault-tolerant distributed task-orchestration system: three coordinator
 nodes elect a single leader over an atomic database lease, three groups of
@@ -36,13 +43,13 @@ Course: **Distributed Systems** (BCE27PC01) — Mini Project
 
 ## What this is
 
-The assignment's framing is a **Command Center** coordinating multiple
+This project is presented through a **Command Center** coordinating multiple
 **Rescue Teams** across a search-and-rescue operation: teams must be
 registered, assigned work, monitored for failure, and have their unfinished
 work recovered when they go silent. That framing maps directly onto what is
 actually built here:
 
-| Assignment framing | What it is in this codebase |
+| Presentation framing | What it is in this codebase |
 |---|---|
 | Command Center | A **coordinator** — one of three, exactly one of which holds leadership at a time |
 | Rescue Team | A **worker** — one of three groups (`market`, `fundamentals`, `news_macro`) |
@@ -320,37 +327,37 @@ actually **implemented and runnable** from what is only **discussed**.
 
 | Topic | Status |
 |---|---|
-| Distributed architecture, design issues, middleware/service boundaries | ✅ Implemented — coordinator / worker / control API / dashboard as separate services |
-| Independent distributed processes | ✅ Implemented — every coordinator/worker is its own container, own OS process |
-| Containerization | ✅ Implemented (Docker Compose, the verified path) · 🟡 Kubernetes manifests written, not applied to a live cluster |
+| Distributed architecture, design issues, middleware/service boundaries | Implemented — coordinator / worker / control API / dashboard as separate services |
+| Independent distributed processes | Implemented — every coordinator/worker is its own container, own OS process |
+| Containerization | Implemented via Docker Compose, the verified path; Kubernetes manifests are written but not applied to a live cluster |
 
 ### Unit II — Communication
 
 | Topic | Status |
 |---|---|
-| Remote procedure calls | ✅ Implemented — gRPC unary RPC, `WorkerCapability.ExecuteCapability` |
-| Request/response communication | ✅ Implemented — HTTP + typed Pydantic contracts throughout |
-| Fault tolerance — worker failure | ✅ Implemented — HTTP heartbeats, threshold-based health demotion |
-| Fault tolerance — leader failure | ✅ Implemented — beacon-timeout-triggered takeover (see Unit III) |
+| Remote procedure calls | Implemented — gRPC unary RPC, `WorkerCapability.ExecuteCapability` |
+| Request/response communication | Implemented — HTTP + typed Pydantic contracts throughout |
+| Fault tolerance — worker failure | Implemented — HTTP heartbeats, threshold-based health demotion |
+| Fault tolerance — leader failure | Implemented — beacon-timeout-triggered takeover (see Unit III) |
 
 ### Unit III — Synchronization
 
 | Topic | Status |
 |---|---|
-| Lamport logical clocks | ✅ Implemented — `tick()`/`observe()`, exercised live on every protocol event |
-| Election algorithms | 🟡 Implemented, but as an **atomic database-lease election**, not the textbook Bully/Ring message exchange |
-| Epoch fencing against stale leaders | ✅ Implemented |
-| Vector clocks | ❌ Not implemented |
-| Distributed mutual exclusion | ❌ Not implemented |
+| Lamport logical clocks | Implemented — `tick()`/`observe()`, exercised live on every protocol event |
+| Election algorithms | Implemented, but as an atomic database-lease election, not the textbook Bully/Ring message exchange |
+| Epoch fencing against stale leaders | Implemented |
+| Vector clocks | Not implemented |
+| Distributed mutual exclusion | Not implemented |
 
 ### Unit IV — Emerging Distributed Paradigms
 
 | Topic | Status |
 |---|---|
-| Distributed web-based system | ✅ Implemented — the Next.js control plane over an independent backend |
-| Docker Compose | ✅ Implemented — the project's primary, verified deployment path |
-| Kubernetes | 🟡 Manifests present (`distributed/deployment/kubernetes/`), validated offline, never applied to a live cluster |
-| Independent worker scaling | ✅ Implemented — `docker compose up -d --scale worker-market=N` |
+| Distributed web-based system | Implemented — the Next.js control plane over an independent backend |
+| Docker Compose | Implemented — the project's primary, verified deployment path |
+| Kubernetes | Manifests present (`distributed/deployment/kubernetes/`), validated offline, never applied to a live cluster |
+| Independent worker scaling | Implemented — `docker compose up -d --scale worker-market=N` |
 
 ## Known limitations
 

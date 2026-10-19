@@ -115,6 +115,7 @@ export default function TopologyPage() {
                   fill="var(--p-raised)"
                   stroke={colorForNode(controlApiNode)}
                   strokeWidth={1.5}
+                  style={{ filter: "drop-shadow(0 1px 3px rgba(15, 20, 30, 0.12))" }}
                 />
                 <text
                   x={positions.get(controlApiNode.id)!.x}
@@ -131,7 +132,15 @@ export default function TopologyPage() {
               const position = positions.get(node.id)!;
               return (
                 <g key={node.id}>
-                  <circle cx={position.x} cy={position.y} r={22} fill={colorForNode(node)} />
+                  <circle
+                    cx={position.x}
+                    cy={position.y}
+                    r={22}
+                    fill={colorForNode(node)}
+                    stroke="var(--p-panel)"
+                    strokeWidth={3}
+                    style={{ filter: "drop-shadow(0 2px 4px rgba(15, 20, 30, 0.18))" }}
+                  />
                   <text x={position.x} y={position.y + 38} textAnchor="middle" fontSize={11} fill="var(--ink-muted)">
                     {node.id}
                   </text>
@@ -145,7 +154,17 @@ export default function TopologyPage() {
               const position = positions.get(node.id)!;
               return (
                 <g key={node.id}>
-                  <rect x={position.x - 16} y={position.y - 16} width={32} height={32} rx={6} fill={colorForNode(node)} />
+                  <rect
+                    x={position.x - 16}
+                    y={position.y - 16}
+                    width={32}
+                    height={32}
+                    rx={6}
+                    fill={colorForNode(node)}
+                    stroke="var(--p-panel)"
+                    strokeWidth={2.5}
+                    style={{ filter: "drop-shadow(0 2px 4px rgba(15, 20, 30, 0.18))" }}
+                  />
                   <text x={position.x} y={position.y + 32} textAnchor="middle" fontSize={10} fill="var(--ink-muted)">
                     {node.group}
                   </text>
